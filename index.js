@@ -12,7 +12,7 @@ let goodOptions = {
     console: [
       {
         module: 'good-console',
-        args: [{ log: [error], response: '*' }]
+        args: [{ log: '*', response: '*' }]
       },
       'stdout'
     ]
@@ -30,17 +30,21 @@ server.register({
     handler: (request, reply) => {
       server.log('error', 'Oh no!')
       server.log('info', 'replying')
-      reply('hello hapi')
+      let resp = reply('hello world')
+      resp.code(418)
+      resp.type('text/plain')
+      resp.header('hello', 'world')
+      resp.state('hello', 'world')
     }
   })
-
-  server.route({
-    method: 'GET',
-    path: '/{name}',
-    handler: (request, reply) => {
-      reply(`hello ${request.params.name}`)
-    }
-  })
+  //
+  // server.route({
+  //   method: 'GET',
+  //   path: '/{name}',
+  //   handler: (request, reply) => {
+  //     reply(`hello ${request.params.name}`)
+  //   }
+  // })
 
   server.start(() => console.log(`Started at: ${server.info.uri}`))
 
