@@ -1,51 +1,28 @@
 'use strict'
 const Hapi = require('hapi')
+//const Path = require('path')
 
 const server = new Hapi.Server()
-server.connection({
-  host: 'localhost',
-  port: 8000
+server.connection({ port: 8000 })
+
+server.register(require('vision'), () => {
+
+server.views({
+  engines: {
+    hbs: require('handlebars')
+  },
+  relativeTo: __dirname,
+  layout: true,
+  path: 'views'
 })
 
-let goodOptions = {
-  reporters: {
-    console: [
-      {
-        module: 'good-console',
-        args: [{ log: '*', response: '*' }]
-      },
-      'stdout'
-    ]
+server.route({
+  method: 'GET',
+  path: '/{name?}',
+  handler: function(request, reply){
+    reply.view('home', {name: request.params.name || 'World'})
   }
-}
-
-server.register({
-  register: require('good'),
-  options: goodOptions
-}, err => {
-
-  server.route({
-    method: 'GET',
-    path: '/',
-    handler: (request, reply) => {
-      server.log('error', 'Oh no!')
-      server.log('info', 'replying')
-      let resp = reply('hello world')
-      resp.code(418)
-      resp.type('text/plain')
-      resp.header('hello', 'world')
-      resp.state('hello', 'world')
-    }
-  })
-  //
-  // server.route({
-  //   method: 'GET',
-  //   path: '/{name}',
-  //   handler: (request, reply) => {
-  //     reply(`hello ${request.params.name}`)
-  //   }
-  // })
+})
 
   server.start(() => console.log(`Started at: ${server.info.uri}`))
-
 })
